@@ -1,16 +1,10 @@
-# -*- coding: utf-8 -*-
-
-import os
 import re
-import sys
 import urllib.parse as urlparse
 
 import requests
-from typing import Optional
+from typing import Optional, List, Dict
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
-import decorators
-from typings import ListOfStrs, DictStrKeyListOfStrsVal
+from .urls_temp_utils import get_first_arg_url_domain
 
 
 # TODO: write functions to return a URL's:
@@ -31,25 +25,20 @@ def url_fragment(url: str) -> str:
     return parsed_url.fragment
 
 
-def url_examples(n: int = 10) -> ListOfStrs:
+def url_examples(n: int = 10) -> List[str]:
     """Create n URLs."""
     from hypothesis.provisional import urls
-    from hypothesis_data import hypothesis_get_strategy_results
+    from democritus_hypothesis import hypothesis_get_strategy_results
 
     return hypothesis_get_strategy_results(urls, n=n)
 
 
-def urls_find(text: str, *, domain_name: str = '', **kwargs) -> ListOfStrs:
+def urls_find(text: str, *, domain_name: str = '', **kwargs) -> List[str]:
     """Parse URLs from the given text. If a domain name is given, only urls with the given domain name will be returned."""
     from ioc_finder import ioc_finder
 
     urls = ioc_finder.parse_urls(text, **kwargs)
-
-    if domain_name:
-        domain_name = domain_name.lower()
-        urls = [url for url in urls if url_domain(url).lower() == domain_name]
-
-    return urls
+    yield from urls
 
 
 def url_canonical_form(url: str) -> str:
@@ -61,7 +50,7 @@ def url_canonical_form(url: str) -> str:
 
 def url_scheme_remove(url: str):
     """Remove the scheme from the given URL."""
-    from strings import string_remove_before, string_remove_from_start
+    from democritus_strings import string_remove_before, string_remove_from_start
 
     url_sans_scheme = string_remove_before(url, '://')
     return string_remove_from_start(url_sans_scheme, '://')
@@ -76,12 +65,12 @@ def url_query_strings_remove(url: str) -> str:
     return new_url
 
 
-def url_query_strings(url: str) -> DictStrKeyListOfStrsVal:
+def url_query_strings(url: str) -> Dict[str, List[str]]:
     """Return all of the query strings in the url."""
     return urlparse.parse_qs(urlparse.urlparse(url).query)
 
 
-def url_query_string(url: str, query_string: str) -> ListOfStrs:
+def url_query_string(url: str, query_string: str) -> List[str]:
     """Return the value of the given query string in the given url."""
     query_strings = url_query_strings(url)
     matching_query_string = query_strings.get(query_string, [])
@@ -128,9 +117,9 @@ def url_path(url: str) -> str:
     return urlparse.urlparse(url).path
 
 
-def url_path_segments(url: str) -> ListOfStrs:
+def url_path_segments(url: str) -> List[str]:
     """Return all of the segments of the url path."""
-    from strings import string_split_without_empty
+    from democritus_strings import string_split_without_empty
 
     return string_split_without_empty(url_path(url), '/')
 
@@ -197,16 +186,16 @@ def is_url(possible_url: str) -> bool:
 
 def url_screenshot(url: str, output_file_path: str = '') -> bytes:
     """."""
-    from networking import get
-    from files import file_write
+    from democritus_networking import get
+    from democritus_file_system import file_write
 
     screenshot_api_url = 'https://render-tron.appspot.com/screenshot/{}?width=1920&height=1099'.format(url)
 
-    result = get(screenshot_api_url, handle_response_as_bytes=True)
+    result = get(screenshot_api_url, process_response_as_bytes=True)
 
     # try again - result will be a requests.Response if the request fails
     if isinstance(result, requests.Response):
-        result = get(screenshot_api_url, handle_response_as_bytes=True)
+        result = get(screenshot_api_url, process_response_as_bytes=True)
 
     # TODO: I would like to remove this feature from this function
     if output_file_path:
@@ -239,24 +228,26 @@ def url_simple_form(url: str) -> str:
     return new_url
 
 
-def url_schemes() -> ListOfStrs:
+def url_schemes() -> List[str]:
     """Get the url schemes from https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml."""
-    from csv_data import csv_read
+    from democritus_csv import csv_read_as_list
+    from democritus_networking import get
 
-    url_schemes = list(csv_read('https://www.iana.org/assignments/uri-schemes/uri-schemes-1.csv'))[1:]
+    url_schemes = list(
+        csv_read_as_list(get('https://www.iana.org/assignments/uri-schemes/uri-schemes-1.csv', process_response=True))
+    )[1:]
     return [entry[0] for entry in url_schemes]
 
 
 def url_from_google_redirect(url: str) -> Optional[str]:
     """Get the url from the google redirect."""
-    from html_data import html_unescape
-    from utility import has_one_item
+    import html
 
     new_url = None
     domain_name = url_domain(url)
     # I'm not sure if the second case will ever be true, but I put it in for good measure
     if domain_name == 'www.google.com' or domain_name == 'google.com':
-        new_url = html_unescape(url)
+        new_url = html.unescape(url)
         google_url_pattern = '.*?q=(http.*?)&'
         matches = re.findall(google_url_pattern, new_url)
         if matches and len(matches) == 1:
@@ -264,7 +255,7 @@ def url_from_google_redirect(url: str) -> Optional[str]:
         else:
             google_url_pattern_2 = '.*?url=(http.*?)&'
             matches = re.findall(google_url_pattern_2, new_url)
-            if has_one_item(matches):
+            if len(matches) == 1:
                 new_url = urlparse.unquote(matches[0])
             else:
                 print('Unable to parse the redirection URL from {}'.format(new_url))
@@ -280,7 +271,6 @@ def url_from_google_redirect(url: str) -> Optional[str]:
 
 
 # TODO: what is the difference between urlparse.(un)quote_plus and urlparse.(un)quote ? I also need to update the comments in both url_encode and url_decode
-@decorators.map_first_arg
 def url_encode(url: str) -> str:
     """Encode the URL using percent encoding (see https://en.wikipedia.org/wiki/Percent-escape)."""
     # TODO: is there a difference between encoding a url path and a query string/parameter?
@@ -298,7 +288,7 @@ def url_base_form(url: str) -> str:
     return '{}://{}/'.format(parsed_url.scheme, parsed_url.netloc)
 
 
-@decorators.get_first_arg_url_domain
+@get_first_arg_url_domain
 def url_rank(url: str) -> int:
     """."""
     from domains import domain_rank

@@ -77,30 +77,30 @@ def test_url_base_form_docs_1():
 
 
 def test_url_canonical_form_docs_1():
-    assert url_canonical_form("http://www.google.com/") == "http://www.google.com/"
-    assert url_canonical_form("http://www.google.com/blah/..") == "http://www.google.com/"
-    assert url_canonical_form("www.google.com/") == "http://www.google.com/"
-    assert url_canonical_form("www.google.com") == "http://www.google.com/"
-    assert url_canonical_form("http://www.evil.com/blah#frag") == "http://www.evil.com/blah"
-    assert url_canonical_form("http://www.GOOgle.com/") == "http://www.google.com/"
-    assert url_canonical_form("http://www.google.com.../") == "http://www.google.com/"
-    assert url_canonical_form("http://www.google.com/foo\tbar\rbaz\n2") == "http://www.google.com/foobarbaz2"
-    assert url_canonical_form("http://www.google.com/q?") == "http://www.google.com/q?"
-    assert url_canonical_form("http://www.google.com/q?r?") == "http://www.google.com/q?r?"
-    assert url_canonical_form("http://www.google.com/q?r?s") == "http://www.google.com/q?r?s"
-    assert url_canonical_form("http://evil.com/foo#bar#baz") == "http://evil.com/foo"
-    assert url_canonical_form("http://evil.com/foo;") == "http://evil.com/foo;"
-    assert url_canonical_form("http://evil.com/foo?bar;") == "http://evil.com/foo?bar;"
-    assert url_canonical_form("http://\x01\x80.com/") == "http://%01%80.com/"
-    assert url_canonical_form("http://notrailingslash.com") == "http://notrailingslash.com/"
-    assert url_canonical_form("http://www.gotaport.com:1234/") == "http://www.gotaport.com/"
-    assert url_canonical_form("  http://www.google.com/  ") == "http://www.google.com/"
-    assert url_canonical_form("http:// leadingspace.com/") == "http://%20leadingspace.com/"
-    assert url_canonical_form("http://%20leadingspace.com/") == "http://%20leadingspace.com/"
-    assert url_canonical_form("%20leadingspace.com/") == "http://%20leadingspace.com/"
-    assert url_canonical_form("https://www.securesite.com/") == "https://www.securesite.com/"
-    assert url_canonical_form("http://host.com/ab%23cd") == "http://host.com/ab%23cd"
-    assert url_canonical_form("http://host.com//twoslashes?more//slashes") == "http://host.com/twoslashes?more//slashes"
+    assert url_canonical_form('http://www.google.com/') == 'http://www.google.com/'
+    assert url_canonical_form('http://www.google.com/blah/..') == 'http://www.google.com/blah/..'
+    assert url_canonical_form('www.google.com/') == 'http://www.google.com/'
+    assert url_canonical_form('www.google.com') == 'http://www.google.com/'
+    assert url_canonical_form('http://www.evil.com/blah#frag') == 'http://www.evil.com/blah'
+    assert url_canonical_form('http://www.GOOgle.com/') == 'http://www.google.com/'
+    assert url_canonical_form('http://www.google.com.../') == 'http://www.google.com/'
+    assert url_canonical_form('http://www.google.com/foo\tbar\rbaz\n2') == 'http://www.google.com/foobarbaz2'
+    assert url_canonical_form('http://www.google.com/q?') == 'http://www.google.com/q?'
+    assert url_canonical_form('http://www.google.com/q?r?') == 'http://www.google.com/q?r?'
+    assert url_canonical_form('http://www.google.com/q?r?s') == 'http://www.google.com/q?r?s'
+    assert url_canonical_form('http://evil.com/foo#bar#baz') == 'http://evil.com/foo'
+    assert url_canonical_form('http://evil.com/foo;') == 'http://evil.com/foo;'
+    assert url_canonical_form('http://evil.com/foo?bar;') == 'http://evil.com/foo?bar;'
+    assert url_canonical_form('http://\x01\x80.com/') == 'http://%01%80.com/'
+    assert url_canonical_form('http://notrailingslash.com') == 'http://notrailingslash.com/'
+    assert url_canonical_form('http://www.gotaport.com:1234/') == 'http://www.gotaport.com/'
+    assert url_canonical_form('  http://www.google.com/  ') == 'http://www.google.com/'
+    assert url_canonical_form('http:// leadingspace.com/') == 'http://%20leadingspace.com/'
+    assert url_canonical_form('http://%20leadingspace.com/') == 'http://%20leadingspace.com/'
+    assert url_canonical_form('%20leadingspace.com/') == 'http://%20leadingspace.com/'
+    assert url_canonical_form('https://www.securesite.com/') == 'https://www.securesite.com/'
+    assert url_canonical_form('http://host.com/ab%23cd') == 'http://host.com/ab%23cd'
+    assert url_canonical_form('http://host.com//twoslashes?more//slashes') == 'http://host.com/twoslashes?more//slashes'
 
 
 def test_url_decode_docs_1():

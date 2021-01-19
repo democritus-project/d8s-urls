@@ -45,7 +45,7 @@ def url_canonical_form(url: str) -> str:
     """Get the canonical url."""
     import werkzeug
 
-    return werkzeug.url_fix(url)
+    return werkzeug.urls.url_fix(url)
 
 
 def url_scheme_remove(url: str):
@@ -149,7 +149,7 @@ def url_domain(url: str) -> str:
 
 def url_domain_second_level_name(url: str) -> str:
     """Find the second level domain name for the URL (e.g. 'http://example.com/test/bingo' => 'example') (see https://en.wikipedia.org/wiki/Domain_name#Second-level_and_lower_level_domains)."""
-    from domains import domain_second_level_name
+    from democritus_domains import domain_second_level_name
 
     if is_url(url):
         o = urlparse.urlparse(url)
@@ -206,7 +206,7 @@ def url_screenshot(url: str, output_file_path: str = '') -> bytes:
 
 def url_as_punycode(url: str) -> str:
     """Convert the domain name of the URL to Punycode."""
-    from domains import domain_as_punycode
+    from democritus_domains import domain_as_punycode
 
     domain = url_domain(url)
     return url.replace(domain, domain_as_punycode(domain), 1)
@@ -214,7 +214,7 @@ def url_as_punycode(url: str) -> str:
 
 def url_as_unicode(url: str) -> str:
     """Convert the domain name of the URL to Unicode."""
-    from domains import domain_as_unicode
+    from democritus_domains import domain_as_unicode
 
     domain = url_domain(url)
     return url.replace(domain, domain_as_unicode(domain), 1)
@@ -291,6 +291,6 @@ def url_base_form(url: str) -> str:
 @get_first_arg_url_domain
 def url_rank(url: str) -> int:
     """."""
-    from domains import domain_rank
+    from democritus_domains import domain_rank
 
     return domain_rank(url)

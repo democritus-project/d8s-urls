@@ -7,3 +7,4 @@ democritus-strings @ git+https://github.com/democritus-project/democritus-string
 hypothesis
 ioc-finder
 werkzeug
+importlib-metadata; python_version < '3.8'

@@ -1,11 +1,9 @@
+import functools
 import re
 import urllib.parse as urlparse
-
-import requests
 from typing import Optional, List, Dict
 
-from .urls_temp_utils import get_first_arg_url_domain
-
+import requests
 
 # TODO: write functions to return a URL's:
 # - username
@@ -145,6 +143,22 @@ def url_domain(url: str) -> str:
         return o.netloc
     else:
         return url
+
+
+def get_first_arg_url_domain(func):
+    """If the first argument is a url, get the domain of the url and pass that into the function."""
+
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        domain_arg = args[0]
+        other_args = args[1:]
+
+        if is_url(domain_arg):
+            domain_arg = url_domain(domain_arg)
+
+        return func(domain_arg, *other_args, **kwargs)
+
+    return wrapper
 
 
 def url_domain_second_level_name(url: str) -> str:

@@ -1,4 +1,4 @@
-from democritus_urls import (
+from d8s_urls import (
     url_examples,
     urls_find,
     url_canonical_form,

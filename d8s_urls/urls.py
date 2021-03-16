@@ -26,7 +26,7 @@ def url_fragment(url: str) -> str:
 def url_examples(n: int = 10) -> List[str]:
     """Create n URLs."""
     from hypothesis.provisional import urls
-    from democritus_hypothesis import hypothesis_get_strategy_results
+    from d8s_hypothesis import hypothesis_get_strategy_results
 
     return hypothesis_get_strategy_results(urls, n=n)
 
@@ -48,7 +48,7 @@ def url_canonical_form(url: str) -> str:
 
 def url_scheme_remove(url: str):
     """Remove the scheme from the given URL."""
-    from democritus_strings import string_remove_before, string_remove_from_start
+    from d8s_strings import string_remove_before, string_remove_from_start
 
     url_sans_scheme = string_remove_before(url, '://')
     return string_remove_from_start(url_sans_scheme, '://')
@@ -117,7 +117,7 @@ def url_path(url: str) -> str:
 
 def url_path_segments(url: str) -> List[str]:
     """Return all of the segments of the url path."""
-    from democritus_strings import string_split_without_empty
+    from d8s_strings import string_split_without_empty
 
     return string_split_without_empty(url_path(url), '/')
 
@@ -163,7 +163,7 @@ def get_first_arg_url_domain(func):
 
 def url_domain_second_level_name(url: str) -> str:
     """Find the second level domain name for the URL (e.g. 'http://example.com/test/bingo' => 'example') (see https://en.wikipedia.org/wiki/Domain_name#Second-level_and_lower_level_domains)."""
-    from democritus_domains import domain_second_level_name
+    from d8s_domains import domain_second_level_name
 
     if is_url(url):
         o = urlparse.urlparse(url)
@@ -200,8 +200,8 @@ def is_url(possible_url: str) -> bool:
 
 def url_screenshot(url: str, output_file_path: str = '') -> bytes:
     """."""
-    from democritus_networking import get
-    from democritus_file_system import file_write
+    from d8s_networking import get
+    from d8s_file_system import file_write
 
     screenshot_api_url = 'https://render-tron.appspot.com/screenshot/{}?width=1920&height=1099'.format(url)
 
@@ -220,7 +220,7 @@ def url_screenshot(url: str, output_file_path: str = '') -> bytes:
 
 def url_as_punycode(url: str) -> str:
     """Convert the domain name of the URL to Punycode."""
-    from democritus_domains import domain_as_punycode
+    from d8s_domains import domain_as_punycode
 
     domain = url_domain(url)
     return url.replace(domain, domain_as_punycode(domain), 1)
@@ -228,7 +228,7 @@ def url_as_punycode(url: str) -> str:
 
 def url_as_unicode(url: str) -> str:
     """Convert the domain name of the URL to Unicode."""
-    from democritus_domains import domain_as_unicode
+    from d8s_domains import domain_as_unicode
 
     domain = url_domain(url)
     return url.replace(domain, domain_as_unicode(domain), 1)
@@ -244,8 +244,8 @@ def url_simple_form(url: str) -> str:
 
 def url_schemes() -> List[str]:
     """Get the url schemes from https://www.iana.org/assignments/uri-schemes/uri-schemes.xhtml."""
-    from democritus_csv import csv_read_as_list
-    from democritus_networking import get
+    from d8s_csv import csv_read_as_list
+    from d8s_networking import get
 
     url_schemes = list(
         csv_read_as_list(get('https://www.iana.org/assignments/uri-schemes/uri-schemes-1.csv', process_response=True))
@@ -305,6 +305,6 @@ def url_base_form(url: str) -> str:
 @get_first_arg_url_domain
 def url_rank(url: str) -> int:
     """."""
-    from democritus_domains import domain_rank
+    from d8s_domains import domain_rank
 
     return domain_rank(url)

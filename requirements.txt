@@ -1,9 +1,9 @@
-democritus-csv
-democritus-domains
-democritus-file-system
-democritus-hypothesis
-democritus-networking
-democritus-strings
+d8s-csv
+d8s-domains
+d8s-file-system
+d8s-hypothesis
+d8s-networking
+d8s-strings
 hypothesis
 importlib-metadata; python_version < '3.8'
 ioc-finder

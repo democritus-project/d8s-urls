@@ -1,7 +1,7 @@
 d8s-csv==0.3.0
 d8s-domains==0.3.0
 d8s-file-system==0.3.0
-d8s-hypothesis==0.3.0
+d8s-hypothesis==0.4.0
 d8s-networking==0.3.0
 d8s-strings==0.2.0
 hypothesis

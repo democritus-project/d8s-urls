@@ -1,7 +1,7 @@
 import functools
 import re
 import urllib.parse as urlparse
-from typing import Optional, List, Dict
+from typing import Dict, Iterator, List, Optional
 
 import requests
 
@@ -25,14 +25,14 @@ def url_fragment(url: str) -> str:
 
 def url_examples(n: int = 10) -> List[str]:
     """Create n URLs."""
-    from hypothesis.provisional import urls
     from d8s_hypothesis import hypothesis_get_strategy_results
+    from hypothesis.provisional import urls
 
     return hypothesis_get_strategy_results(urls, n=n)
 
 
-def urls_find(text: str, *, domain_name: str = '', **kwargs) -> List[str]:
-    """Parse URLs from the given text. If a domain name is given, only urls with the given domain name will be returned."""
+def urls_find(text: str, *, domain_name: str = "", **kwargs) -> Iterator[str]:
+    """Parse URLs from the given text. If a domain name is given, only urls with the given domain name will be returned."""  # noqa: E501
     from ioc_finder import ioc_finder
 
     urls = ioc_finder.parse_urls(text, **kwargs)
@@ -40,26 +40,31 @@ def urls_find(text: str, *, domain_name: str = '', **kwargs) -> List[str]:
 
 
 def url_canonical_form(url: str) -> str:
-    """Get the canonical url."""
-    import werkzeug
+    """Get the canonical url.
 
-    return werkzeug.urls.url_fix(url)
+    This quotes any unsafe characters in the URL's path and query string (equivalent to the behavior of the
+    now-removed werkzeug.urls.url_fix).
+    """
+    scheme, netloc, path, query, fragment = urlparse.urlsplit(url)
+    path = urlparse.quote(path, safe="/%+$!*'(),")
+    query = urlparse.quote_plus(query, safe=":&%=+$!*'(),")
+    return urlparse.urlunsplit((scheme, netloc, path, query, fragment))
 
 
 def url_scheme_remove(url: str):
     """Remove the scheme from the given URL."""
     from d8s_strings import string_remove_before, string_remove_from_start
 
-    url_sans_scheme = string_remove_before(url, '://')
-    return string_remove_from_start(url_sans_scheme, '://')
+    url_sans_scheme = string_remove_before(url, "://")
+    return string_remove_from_start(url_sans_scheme, "://")
 
 
 def url_query_strings_remove(url: str) -> str:
     """Return the URL without any query strings."""
     parsed_url = urlparse.urlparse(url)
-    new_url = '{}://{}{}{}'.format(parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params)
+    new_url = "{}://{}{}{}".format(parsed_url.scheme, parsed_url.netloc, parsed_url.path, parsed_url.params)
     if parsed_url.fragment:
-        new_url = '{}#{}'.format(new_url, parsed_url.fragment)
+        new_url = "{}#{}".format(new_url, parsed_url.fragment)
     return new_url
 
 
@@ -80,9 +85,9 @@ def url_query_string_add(url: str, query_string_field: str, query_string_value: 
     new_query_string = urlparse.urlencode({query_string_field: query_string_value})
 
     if not existing_query_strings:
-        return '{}?{}'.format(url, new_query_string)
+        return "{}?{}".format(url, new_query_string)
     else:
-        return '{}&{}'.format(url, new_query_string)
+        return "{}&{}".format(url, new_query_string)
 
 
 def url_query_string_remove(url: str, query_string_field_to_remove: str) -> str:
@@ -119,7 +124,7 @@ def url_path_segments(url: str) -> List[str]:
     """Return all of the segments of the url path."""
     from d8s_strings import string_split_without_empty
 
-    return string_split_without_empty(url_path(url), '/')
+    return list(string_split_without_empty(url_path(url), "/"))
 
 
 def url_fragments_remove(url: str) -> str:
@@ -130,10 +135,10 @@ def url_fragments_remove(url: str) -> str:
 # TODO: write a function for `url_as_punycode` and `url_as_unicode`
 
 
-# TODO: can this be genericized to work with file names as well? - or can the file_name function from the files module be used here?
+# TODO: can this be genericized to work with file names as well? - or can the file_name function from the files module be used here?  # noqa: E501
 def url_file_name(url: str) -> str:
     """Get the file name of the URL."""
-    return url.split('/')[-1]
+    return url.split("/")[-1]
 
 
 def url_domain(url: str) -> str:
@@ -175,11 +180,11 @@ def url_domain_second_level_name(url: str) -> str:
 # TODO: expand the types accepted for the first argument of this function
 def url_join(url: str, path: str):
     """Join the URL to the URL path."""
-    # the block below makes sure that, if the last section of the url's path does not appear to be a file, the url ends in a '/' so that the last section of the url path is not replaced. IMO, python's normal implementation of urlparse.urljoin can be unexpected when a URL does not end in a '/'. I would expect url_join('https://foo.com/test', 'bingo.php') to return 'https://foo.com/test/bingo.php', but python's default implementation of url_join would produce 'https://foo.com/bingo.php'.
+    # the block below makes sure that, if the last section of the url's path does not appear to be a file, the url ends in a '/' so that the last section of the url path is not replaced. IMO, python's normal implementation of urlparse.urljoin can be unexpected when a URL does not end in a '/'. I would expect url_join('https://foo.com/test', 'bingo.php') to return 'https://foo.com/test/bingo.php', but python's default implementation of url_join would produce 'https://foo.com/bingo.php'.  # noqa: E501
     url_path_of_url = url_path(url)
-    url_path_of_url_last_section = url_path_of_url.split('/')[-1]
-    if '.' not in url_path_of_url_last_section:
-        url = url + '/'
+    url_path_of_url_last_section = url_path_of_url.split("/")[-1]
+    if "." not in url_path_of_url_last_section:
+        url = url + "/"
 
     return urlparse.urljoin(url, path)
 
@@ -192,18 +197,18 @@ def is_url(possible_url: str) -> bool:
         # if there is a problem reading the possible_url, assume it is not a url
         return False
     else:
-        if o.scheme == '' or o.netloc == '':
+        if o.scheme == "" or o.netloc == "":
             return False
         else:
             return True
 
 
-def url_screenshot(url: str, output_file_path: str = '') -> bytes:
+def url_screenshot(url: str, output_file_path: str = "") -> bytes:
     """."""
-    from d8s_networking import get
     from d8s_file_system import file_write
+    from d8s_networking import get
 
-    screenshot_api_url = 'https://render-tron.appspot.com/screenshot/{}?width=1920&height=1099'.format(url)
+    screenshot_api_url = "https://render-tron.appspot.com/screenshot/{}?width=1920&height=1099".format(url)
 
     result = get(screenshot_api_url, process_response_as_bytes=True)
 
@@ -248,7 +253,7 @@ def url_schemes() -> List[str]:
     from d8s_networking import get
 
     url_schemes = list(
-        csv_read_as_list(get('https://www.iana.org/assignments/uri-schemes/uri-schemes-1.csv', process_response=True))
+        csv_read_as_list(get("https://www.iana.org/assignments/uri-schemes/uri-schemes-1.csv", process_response=True))
     )[1:]
     return [entry[0] for entry in url_schemes]
 
@@ -260,23 +265,23 @@ def url_from_google_redirect(url: str) -> Optional[str]:
     new_url = None
     domain_name = url_domain(url)
     # I'm not sure if the second case will ever be true, but I put it in for good measure
-    if domain_name == 'www.google.com' or domain_name == 'google.com':
+    if domain_name == "www.google.com" or domain_name == "google.com":
         new_url = html.unescape(url)
-        google_url_pattern = '.*?q=(http.*?)&'
+        google_url_pattern = ".*?q=(http.*?)&"
         matches = re.findall(google_url_pattern, new_url)
         if matches and len(matches) == 1:
             new_url = urlparse.unquote(matches[0])
         else:
-            google_url_pattern_2 = '.*?url=(http.*?)&'
+            google_url_pattern_2 = ".*?url=(http.*?)&"
             matches = re.findall(google_url_pattern_2, new_url)
             if len(matches) == 1:
                 new_url = urlparse.unquote(matches[0])
             else:
-                print('Unable to parse the redirection URL from {}'.format(new_url))
+                print("Unable to parse the redirection URL from {}".format(new_url))
                 new_url = None
     else:
         print(
-            'The domain name ({}) for this URL ({}) was not detected as a google domain name. If this is incorrect, please raise an issue here: https://gitlab.com/fhightower/ioc-utility/.'.format(
+            "The domain name ({}) for this URL ({}) was not detected as a google domain name. If this is incorrect, please raise an issue here: https://gitlab.com/fhightower/ioc-utility/.".format(  # noqa: E501
                 domain_name, url
             )
         )
@@ -284,7 +289,7 @@ def url_from_google_redirect(url: str) -> Optional[str]:
     return new_url
 
 
-# TODO: what is the difference between urlparse.(un)quote_plus and urlparse.(un)quote ? I also need to update the comments in both url_encode and url_decode
+# TODO: what is the difference between urlparse.(un)quote_plus and urlparse.(un)quote ? I also need to update the comments in both url_encode and url_decode  # noqa: E501
 def url_encode(url: str) -> str:
     """Encode the URL using percent encoding (see https://en.wikipedia.org/wiki/Percent-escape)."""
     # TODO: is there a difference between encoding a url path and a query string/parameter?
@@ -299,7 +304,7 @@ def url_decode(url: str) -> str:
 def url_base_form(url: str) -> str:
     """Get the base URL without a path, query strings, or other junk."""
     parsed_url = urlparse.urlparse(url)
-    return '{}://{}/'.format(parsed_url.scheme, parsed_url.netloc)
+    return "{}://{}/".format(parsed_url.scheme, parsed_url.netloc)
 
 
 @get_first_arg_url_domain

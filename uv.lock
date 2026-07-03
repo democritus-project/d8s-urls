@@ -351,7 +351,7 @@ wheels = [
 
 [[package]]
 name = "d8s-domains"
-version = "0.6.0"
+version = "0.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "d8s-hypothesis" },
@@ -362,9 +362,9 @@ dependencies = [
     { name = "tldextract" },
     { name = "whois" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/48/a5/f5f581edb4edfec12785b599d6f58d77e2b5a983468d0916a26800f0ae26/d8s_domains-0.6.0.tar.gz", hash = "sha256:19509f954a45324e0a9fdf9ce7437d022d06e67df6e9e9f2b5b2b19f08ac3793", size = 26141, upload-time = "2021-05-07T10:45:59.399Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/8e/9b/038d8978d6e1d8f3d858e70d2202dfc4257b57695bac06d3f159291bc63b/d8s_domains-0.7.0.tar.gz", hash = "sha256:e9627eb843389e8d34d6c10cd9913952fe1220c0b68983cfea73017354d270a5", size = 95581, upload-time = "2026-07-01T12:04:55.007Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/4d/b2/19fcb150cd7b68e930ad1b21de52acdd83800b4175e1aabd23587a8941c5/d8s_domains-0.6.0-py2.py3-none-any.whl", hash = "sha256:2d63e5fe67fe364eff03843230a6d7055a9f40b60c77bb2241d0a1e842d2969a", size = 22172, upload-time = "2021-05-07T10:45:56.798Z" },
+    { url = "https://files.pythonhosted.org/packages/86/43/e65a5cb1425449619303d03c72db09bb5d6c97f4def0710035687be7698f/d8s_domains-0.7.0-py3-none-any.whl", hash = "sha256:c94a3b328edd1023eaa7697f5dc2a6d47bd594a5f173cc3a0b7f45716d1befb0", size = 20260, upload-time = "2026-07-01T12:04:53.644Z" },
 ]
 
 [[package]]
@@ -512,7 +512,7 @@ wheels = [
 
 [[package]]
 name = "d8s-urls"
-version = "0.6.0"
+version = "0.7.0"
 source = { editable = "." }
 dependencies = [
     { name = "d8s-csv" },
